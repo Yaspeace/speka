@@ -1,0 +1,121 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- ===== Палитра ===== -->
+        <SolidColorBrush x:Key="TreeBackgroundBrush" Color="#F5F5F5"/>
+        <!-- светло-серый -->
+        <SolidColorBrush x:Key="TreeHoverBrush"      Color="#D4EDDA"/>
+        <!-- светло-зелёный -->
+        <SolidColorBrush x:Key="TreeSelectedBrush"   Color="#2E7D32"/>
+        <!-- тёмно-зелёный -->
+        <SolidColorBrush x:Key="TreeSelectedTextBrush" Color="White"/>
+        <SolidColorBrush x:Key="TreeTextBrush"       Color="#333333"/>
+
+        <!-- ===== Стиль для TreeView ===== -->
+        <Style x:Key="SpecTreeViewStyle" TargetType="TreeView" BasedOn="{StaticResource {x:Type TreeView}}">
+            <Setter Property="Background" Value="{StaticResource TreeBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="#DDDDDD"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        </Style>
+
+        <!-- ===== Стиль для TreeViewItem ===== -->
+    <Style x:Key="SpecTreeViewItemStyle" TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Foreground" Value="{StaticResource TreeTextBrush}"/>
+        <Setter Property="Padding" Value="4,0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TreeViewItem">
+                    <StackPanel>
+
+                        <!-- Заголовок узла -->
+                        <Border x:Name="Bd"
+                                Background="Transparent"
+                                SnapsToDevicePixels="True"
+                                Height="30">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="19"/>
+                                    <!-- место под стрелку -->
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Стрелка раскрытия -->
+                                <ToggleButton x:Name="Expander"
+                                              Grid.Column="0"
+                                              ClickMode="Press"
+                                              IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                              Focusable="False"
+                                              Background="Transparent"
+                                              BorderThickness="0">
+                                    <Path x:Name="Arrow"
+                                      Data="M 0 0 L 4 4 L 8 0"
+                                      Stroke="Black" StrokeThickness="1.5"
+                                      RenderTransformOrigin="0.5,0.5">
+                                        <Path.RenderTransform>
+                                            <RotateTransform x:Name="ArrowRotate" Angle="0"/>
+                                        </Path.RenderTransform>
+                                    </Path>
+                                </ToggleButton>
+
+                                <!-- Контент (иконка + имя файла) -->
+                                <ContentPresenter x:Name="PART_Header"
+                                                  Grid.Column="1"
+                                                  ContentSource="Header"
+                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Дочерние узлы -->
+                        <ItemsPresenter x:Name="ItemsHost" />
+                    </StackPanel>
+
+                    <ControlTemplate.Triggers>
+                        <!--<Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="ArrowRotate" Property="Angle" Value="90"/>
+                        </Trigger>-->
+
+                        <!-- Скрываем дочерние элементы, если узел свёрнут -->
+                        <Trigger Property="IsExpanded" Value="False">
+                            <Setter TargetName="ItemsHost" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+
+                        <!-- У узла без детей стрелка не нужна -->
+                        <Trigger Property="HasItems" Value="False">
+                            <Setter TargetName="Expander" Property="Visibility" Value="Hidden"/>
+                        </Trigger>
+
+                        <!-- Наведение мыши (идёт ПЕРВЫМ, чтобы Selected перекрыл его) -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{StaticResource TreeHoverBrush}"/>
+                        </Trigger>
+
+                        <!-- Выделен (идёт ВТОРЫМ — перекрывает MouseOver) -->
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{StaticResource TreeSelectedBrush}"/>
+                            <Setter Property="Foreground"
+                                    Value="{StaticResource TreeSelectedTextBrush}"/>
+                        </Trigger>
+
+                        <!-- Выделен + не в фокусе (кликнули в другое место) — приглушаем -->
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True"/>
+                                <Condition Property="IsSelectionActive" Value="False"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Bd" Property="Background" Value="#A5D6A7"/>
+                            <Setter Property="Foreground" Value="#1B5E20"/>
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
