@@ -1,6 +1,9 @@
 ﻿using Microsoft.Win32;
 using Speka.Models;
+using Speka.Models.Specifications;
+using Speka.Models.Specifications.OpenapiSpec;
 using Speka.Services;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -10,6 +13,7 @@ namespace Speka.ViewModels
     public class MainViewModel : INotifyPropertyChanged
     {
         private readonly FileSystemService fileSystemService = new();
+        private readonly OpenapiService openapiService = new();
 
         public ICommand OpenFolderCommand { get; }
 
@@ -36,6 +40,12 @@ namespace Speka.ViewModels
         }
 
         public string? CurrentPath
+        {
+            get;
+            private set { field = value; OnPropertyChanged(); }
+        }
+
+        public Specification? CurrentSpec
         {
             get;
             private set { field = value; OnPropertyChanged(); }
@@ -74,6 +84,8 @@ namespace Speka.ViewModels
             if (node.IsFile)
             {
                 SelectedItem = node;
+                var schema = openapiService.ReadSchemaFromFile(node.FullPath);
+                CurrentSpec = GetSpecFromRaw(schema);
             }
             else
             {
@@ -88,6 +100,29 @@ namespace Speka.ViewModels
 
             CurrentRoot = CurrentRoot.Parent;
             SelectedItem = null;
+        }
+
+        private Specification GetSpecFromRaw(OpenapiSchema schema)
+        {
+            return new Specification
+            {
+                ApiOverview = new()
+                {
+                    Title = schema.Info.Title,
+                    Description = schema.Info.Description
+                },
+                Models = new ObservableCollection<ApiModel>(GetModelsFromRaw(schema.Components)),
+                Paths = new ObservableCollection<ApiPath>(schema.Paths?.Select(kv => new ApiPath() { Name = kv.Key}) ?? [])
+            };
+        }
+
+        private IEnumerable<ApiModel> GetModelsFromRaw(OpenapiComponents components)
+        {
+            return components.Schemas.Select(kv => new ApiModel()
+            {
+                Name = kv.Key,
+                Description = kv.Value.Description
+            });
         }
     }
 }

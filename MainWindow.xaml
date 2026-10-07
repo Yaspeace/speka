@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:Speka"
         xmlns:vm="clr-namespace:Speka.ViewModels"
         xmlns:m="clr-namespace:Speka.Models"
+        xmlns:ms="clr-namespace:Speka.Models.Specifications"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         Title="Speka" Height="450" Width="800" WindowState="Maximized">
@@ -40,7 +41,7 @@
                         Foreground="#333"
                         FontWeight="SemiBold"/>
                 </Border>
-                <Border BorderThickness="0" Padding="6,6" Height="30">
+                <Border BorderThickness="0" Padding="6,6" Height="30" CornerRadius="6" Margin="10,0">
                     <Border.Style>
                         <Style TargetType="Border">
                             <Setter Property="Background" Value="Transparent"/>
@@ -68,6 +69,7 @@
                         <Style TargetType="ListViewItem">
                             <Setter Property="Height" Value="30"/>
                             <Setter Property="Padding" Value="6,0"/>
+                            <Setter Property="Margin" Value="10,0"/>
                             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                             <Setter Property="Template">
                                 <Setter.Value>
@@ -75,7 +77,8 @@
                                         <Border x:Name="Bd"
                                                 Background="Transparent"
                                                 Padding="{TemplateBinding Padding}"
-                                                SnapsToDevicePixels="True">
+                                                SnapsToDevicePixels="True"
+                                                CornerRadius="6">
                                             <ContentPresenter VerticalAlignment="Center"/>
                                         </Border>
                                         <ControlTemplate.Triggers>
@@ -115,13 +118,52 @@
 
             <TabControl Grid.Column="2" Background="White">
                 <TabItem Header="API Overview">
-                    <TextBlock Text="TODO: Общая информация об api" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                    <StackPanel>
+                        <TextBlock Text="{Binding CurrentSpec.ApiOverview.Title}" FontSize="20"/>
+                        <TextBlock Text="{Binding CurrentSpec.ApiOverview.Description}"/>
+                    </StackPanel>
                 </TabItem>
                 <TabItem Header="Paths">
-                    <TextBlock Text="TODO: Редактор методов" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="300" MinWidth="200"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <ListView Grid.Column="0" ItemsSource="{Binding CurrentSpec.Paths}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate DataType="{x:Type ms:ApiPath}">
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="Black"/>
+
+                        <TextBlock Grid.Column="2" Text="TODO: Редактор методов" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                    </Grid>
                 </TabItem>
                 <TabItem Header="Schemas">
-                    <TextBlock Text="TODO: Редактор моделей" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="300" MinWidth="200"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <ListView Grid.Column="0" ItemsSource="{Binding CurrentSpec.Models}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate DataType="{x:Type ms:ApiModel}">
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="Black"/>
+
+                        <TextBlock Grid.Column="2" Text="TODO: Редактор моделей" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                    </Grid>
                 </TabItem>
             </TabControl>
         </Grid>
